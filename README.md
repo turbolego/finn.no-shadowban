@@ -61,20 +61,6 @@ For å administrere listen over blokkerte selgere:
 - `background.js` - Bakgrunnsskript som administrerer kontekstmenyer og meldinger
 - `images/` - Katalog som inneholder utvidelsesikoner
 
-## Konvertere ikoner
-
-Før du bruker utvidelsen må du konvertere SVG-ikonet til PNG-formater:
-
-1. Åpne SVG-filen i et bildeprogram eller bruk en online-konverter
-2. Eksporter som PNG i følgende størrelser:
-   - 16x16
-   - 48x48
-   - 128x128
-3. Lagre PNG-filene i `images`-mappen som:
-   - `icon16.png`
-   - `icon48.png`
-   - `icon128.png`
-
 ## Merk
 
 Denne utvidelsen er kun for personlig bruk og er designet for å forbedre nettleseropplevelsen din på finn.no ved å la deg filtrere bort annonser fra bestemte selgere.

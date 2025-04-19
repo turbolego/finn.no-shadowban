@@ -59,20 +59,6 @@ To manage your list of blocked sellers:
 - `background.js` - Background script that manages context menus and messaging
 - `images/` - Directory containing the extension icons
 
-## Converting Icons
-
-Before using the extension, you'll need to convert the SVG icon to PNG formats:
-
-1. Open the SVG file in an image editor or use an online converter
-2. Export as PNG in the following sizes:
-   - 16x16
-   - 48x48
-   - 128x128
-3. Save the PNG files in the `images` directory as:
-   - `icon16.png`
-   - `icon48.png`
-   - `icon128.png`
-
 ## Note
 
 This extension is for personal use only and designed to enhance your browsing experience on finn.no by allowing you to filter out listings from specific sellers.
