@@ -1,5 +1,3 @@
-<meta name="google-site-verification" content="hh1bAv1NVzaJdPdgBVOSwoJ62uWGHqqLnHHODHa5zVk" />
-
 Read English readme here: [English README](README-EN.md)
 
 # Finn.no Shadowban Chrome-utvidelse

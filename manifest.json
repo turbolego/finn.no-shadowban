@@ -3,13 +3,11 @@
   "name": "Finn.no Shadowban",
   "version": "1.0",
   "description": "Hides listings from specific users on Finn.no",
-  "author": {
-    "email": "turbolego@gmail.com"
-  },
+  "author": "turbolego@gmail.com",
   "permissions": [
-    "activeTab", 
-    "scripting", 
-    "contextMenus", 
+    "activeTab",
+    "scripting",
+    "contextMenus",
     "storage",
     "notifications"
   ],
