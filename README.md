@@ -1,78 +1,80 @@
-# Finn.no Shadowban Chrome Extension
+Read English readme here: [English README](README-EN.md)
 
-This Chrome extension allows you to hide listings from specific sellers on finn.no by adding them to your personal blocklist.
+# Finn.no Shadowban Chrome-utvidelse
 
-## Features
+Denne Chrome-utvidelsen lar deg skjule annonser fra bestemte selgere på finn.no ved å legge dem til i din personlige blokkeringsliste.
 
-- Automatically scans search result pages on finn.no
-- Checks each listing to see if it belongs to any blocked seller
-- Hides listings from all blocked sellers
-- Right-click menu option to easily block new sellers
-- Popup interface to manage your blocked sellers list
-- Works with infinite scrolling and different listing types
+## Funksjoner
 
-## Installation
+- Skanner automatisk søkeresultatsider på finn.no
+- Sjekker hver annonse for å se om den tilhører en blokkert selger
+- Skjuler annonser fra alle blokkerte selgere
+- Høyreklikkmeny for enkelt å blokkere nye selgere
+- Popup-grensesnitt for å administrere listen over blokkerte selgere
+- Fungerer med uendelig rulling og ulike annonsetyper
 
-To install this extension in Chrome:
+## Installasjon
 
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" using the toggle in the top-right corner
-3. Click "Load unpacked" and select the folder containing this extension
-4. The extension should now be installed and active
+For å installere denne utvidelsen i Chrome:
 
-## How It Works
+1. Åpne Chrome og gå til `chrome://extensions/`
+2. Aktiver "Utviklermodus" ved å bruke bryteren øverst til høyre
+3. Klikk "Last upakket" og velg mappen som inneholder denne utvidelsen
+4. Utvidelsen skal nå være installert og aktiv
 
-The extension works by:
-1. Scanning search result pages on finn.no
-2. For each listing, checking if it's from a blocked seller
-3. Hiding any listings that belong to blocked sellers
-4. Maintaining a list of blocked user IDs in the browser's local storage
-5. Continuously monitoring for new content as you scroll
+## Hvordan det fungerer
 
-## Adding Sellers to the Blocklist
+Utvidelsen fungerer ved å:
+1. Skanne søkeresultatsider på finn.no
+2. For hver annonse, sjekke om den er fra en blokkert selger
+3. Skjule annonser som tilhører blokkede selgere
+4. Lagrer en liste over blokkerte bruker-IDer i nettleserens lokale lagring
+5. Overvåke kontinuerlig for nytt innhold når du ruller
 
-There are two ways to block a seller:
+## Legge til selgere i blokkeringslisten
 
-1. **Right-click method**: 
-   - Right-click on any item in search results
-   - Select "Shadowban all items from this seller" from the context menu
-   - The extension will extract the seller's user ID and add it to your blocklist
+Det finnes to måter å blokkere en selger på:
 
-2. **Manual addition**:
-   - Find the seller's user ID (from their profile URL)
-   - Add it to the blocklist through the extension's popup interface
+1. Høyreklikkmetoden:
+   - Høyreklikk på en annonse i søkeresultater
+   - Velg "Shadowban alle annonser fra denne selgeren" i kontekstmenyen
+   - Utvidelsen vil hente selgerens bruker-ID og legge den til blokkeringslisten
 
-## Managing Blocked Sellers
+2. Manuell legging til:
+   - Finn selgerens bruker-ID (fra profilens URL)
+   - Legg den til i blokkeringslisten via popup-grensesnittet
 
-To manage your list of blocked sellers:
+## Administrere blokkerte selgere
 
-1. Click on the extension icon in your browser toolbar
-2. View all currently blocked seller IDs
-3. Remove any seller from the blocklist by clicking the "Remove" button next to their ID
+For å administrere listen over blokkerte selgere:
 
-## Files
+1. Klikk på utvidelsesikonet i verktøylinjen
+2. Se alle gjeldende blokkerte bruker-IDer
+3. Fjern en selger fra blokkeringslisten ved å klikke på "Fjern"-knappen ved siden av IDen
 
-- `manifest.json` - Configuration file for the extension
-- `popup.html` - User interface for managing blocked sellers
-- `popup.js` - Script that handles the popup interface functionality
-- `content.js` - Main script that handles the filtering logic
-- `background.js` - Background script that manages context menus and messaging
-- `images/` - Directory containing the extension icons
+## Filer
 
-## Converting Icons
+- `manifest.json` - Konfigurasjonsfil for utvidelsen
+- `popup.html` - Brukergrensesnitt for å administrere blokkerte selgere
+- `popup.js` - Skript som håndterer popup-funksjonalitet
+- `content.js` - Hovedskript som håndterer filtreringslogikk
+- `background.js` - Bakgrunnsskript som administrerer kontekstmenyer og meldinger
+- `images/` - Katalog som inneholder utvidelsesikoner
 
-Before using the extension, you'll need to convert the SVG icon to PNG formats:
+## Konvertere ikoner
 
-1. Open the SVG file in an image editor or use an online converter
-2. Export as PNG in the following sizes:
+Før du bruker utvidelsen må du konvertere SVG-ikonet til PNG-formater:
+
+1. Åpne SVG-filen i et bildeprogram eller bruk en online-konverter
+2. Eksporter som PNG i følgende størrelser:
    - 16x16
    - 48x48
    - 128x128
-3. Save the PNG files in the `images` directory as:
+3. Lagre PNG-filene i `images`-mappen som:
    - `icon16.png`
    - `icon48.png`
    - `icon128.png`
 
-## Note
+## Merk
 
-This extension is for personal use only and designed to enhance your browsing experience on finn.no by allowing you to filter out listings from specific sellers.
+Denne utvidelsen er kun for personlig bruk og er designet for å forbedre nettleseropplevelsen din på finn.no ved å la deg filtrere bort annonser fra bestemte selgere.
