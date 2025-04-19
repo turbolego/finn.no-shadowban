@@ -50,6 +50,17 @@ To manage your list of blocked sellers:
 2. View all currently blocked seller IDs
 3. Remove any seller from the blocklist by clicking the "Remove" button next to their ID
 
+## Permissions
+
+This extension requires the following permissions to function:
+
+- **activeTab**: To read the content of the active tab and perform actions like hiding listings.
+- **scripting**: To inject scripts that handle filtering logic directly on the website.
+- **contextMenus**: To add a right-click menu option that allows you to block sellers directly from search results.
+- **storage**: To store the list of blocked user IDs locally in the browser.
+- **notifications**: To display notifications when a seller is blocked or if an error occurs.
+- **host permissions**: This permission is required to allow the extension to interact with all pages on finn.no, including search results and individual item pages, to identify and hide listings from blocked sellers.
+
 ## Files
 
 - `manifest.json` - Configuration file for the extension
@@ -62,3 +73,4 @@ To manage your list of blocked sellers:
 ## Note
 
 This extension is for personal use only and designed to enhance your browsing experience on finn.no by allowing you to filter out listings from specific sellers.
+

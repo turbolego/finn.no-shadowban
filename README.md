@@ -61,6 +61,18 @@ For å administrere listen over blokkerte selgere:
 - `background.js` - Bakgrunnsskript som administrerer kontekstmenyer og meldinger
 - `images/` - Katalog som inneholder utvidelsesikoner
 
+## Tillatelser
+
+Denne utvidelsen krever følgende tillatelser for å fungere:
+
+- **activeTab**: For å kunne lese innholdet på den aktive fanen og utføre handlinger som å skjule annonser.
+- **scripting**: For å injisere skript som håndterer filtreringslogikk direkte på nettsiden.
+- **contextMenus**: For å legge til en høyreklikkmeny som lar deg blokkere selgere direkte fra søkeresultatene.
+- **storage**: For å lagre listen over blokkerte bruker-IDer lokalt i nettleseren.
+- **notifications**: For å vise varsler når en selger er blokkert eller hvis det oppstår en feil.
+- **vertstillatelse**: Denne tillatelsen er nødvendig for å la utvidelsen samhandle med alle sider på finn.no, inkludert søkeresultater og individuelle annonse-sider, for å identifisere og skjule annonser fra blokkerte selgere.
+
 ## Merk
 
 Denne utvidelsen er kun for personlig bruk og er designet for å forbedre nettleseropplevelsen din på finn.no ved å la deg filtrere bort annonser fra bestemte selgere.
+
