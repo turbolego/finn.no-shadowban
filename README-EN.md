@@ -1,3 +1,5 @@
+Firefox -versjon: https://github.com/turbolego/finn.no-shadowban-firefox
+
 # Finn.no Shadowban Chrome Extension
 
 This Chrome extension allows you to hide listings from specific sellers on finn.no by adding them to your personal blocklist.

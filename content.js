@@ -8,15 +8,15 @@ const blockedItems = new Set();
 
 // Load blocked user IDs from local storage
 function loadBlockedUserIds() {
-  chrome.storage.local.get(['blockedUserIds'], function(result) {
+  console.log('Finn.no Shadowban: Loading blocked user IDs from storage');
+  chrome.storage.local.get('blockedUserIds', function(result) {
     if (result.blockedUserIds) {
       BLOCKED_USER_IDS = result.blockedUserIds;
       console.log('Finn.no Shadowban: Loaded blocked user IDs:', BLOCKED_USER_IDS);
-      // Re-run shadowban with the loaded IDs
       shadowbanUser();
     } else {
-      // Initialize with empty array if no blocked users exist
-      chrome.storage.local.set({blockedUserIds: []});
+      console.log('Finn.no Shadowban: No blocked users found, initializing empty array');
+      chrome.storage.local.set({ blockedUserIds: [] });
       BLOCKED_USER_IDS = [];
     }
   });
@@ -27,89 +27,49 @@ loadBlockedUserIds();
 
 // Main function to handle the shadowban functionality
 function shadowbanUser() {
-  // If we have no blocked users, no need to continue
-  if (BLOCKED_USER_IDS.length === 0) {
-    return;
-  }
-  
-  // Check if we're on a search results page
-  if (window.location.href.includes('/search/') || 
-      window.location.href.includes('/bap/') || 
+  if (BLOCKED_USER_IDS.length === 0) return;
+
+  if (window.location.href.includes('/search/') ||
+      window.location.href.includes('/bap/') ||
       window.location.href.includes('/recommerce/') ||
       document.querySelector('article.sf-search-ad')) {
-    console.log('Finn.no Shadowban: Scanning search results page for blocked user IDs:', BLOCKED_USER_IDS);
-    
-    // Get all articles (search results)
-    const searchResults = document.querySelectorAll('article.sf-search-ad');
-    
-    if (searchResults.length > 0) {
-      console.log(`Finn.no Shadowban: Found ${searchResults.length} items in search results`);
-      
-      // Process each search result
-      searchResults.forEach((article) => {
-        // Try to find user ID directly in the article HTML
-        const articleHTML = article.innerHTML;
-        
-        // Check against all blocked user IDs
-        for (const userId of BLOCKED_USER_IDS) {
-          if (articleHTML.includes(`userId=${userId}`)) {
-            console.log(`Finn.no Shadowban: Found and hiding item from blocked user ${userId} (direct match)`);
-            article.style.display = 'none';
-            return;
-          }
-        }
-        
-        // Get the item ID if possible
-        const linkElement = article.querySelector('a.sf-search-ad-link');
-        if (!linkElement) return;
-        
-        const itemUrl = linkElement.href;
-        const itemIdMatch = itemUrl.match(/\/item\/(\d+)/);
-        if (!itemIdMatch) return;
-        
-        const itemId = itemIdMatch[1];
-        
-        // If we've already identified this as a blocked item, hide it
-        if (blockedItems.has(itemId)) {
-          console.log(`Finn.no Shadowban: Hiding previously identified blocked item: ${itemId}`);
+    console.log('Finn.no Shadowban: Scanning search results for blocked IDs:', BLOCKED_USER_IDS);
+    const results = document.querySelectorAll('article.sf-search-ad');
+    results.forEach(article => {
+      const html = article.innerHTML;
+      for (const id of BLOCKED_USER_IDS) {
+        if (html.includes(`userId=${id}`)) {
           article.style.display = 'none';
           return;
         }
-        
-        // Skip if we've already checked this item
-        if (checkedItems.has(itemId)) return;
-        
-        // Mark this item as checked to avoid checking it again
-        checkedItems.add(itemId);
-        
-        // Check if this item is from any of the blocked users
-        checkItemSeller(itemUrl).then(blockedUserId => {
-          if (blockedUserId) {
-            console.log(`Finn.no Shadowban: Hiding item from blocked user ${blockedUserId}: ${itemUrl}`);
-            article.style.display = 'none';
-            blockedItems.add(itemId);
-            
-            // Create a more permanent style
-            const styleTag = document.createElement('style');
-            styleTag.textContent = `
-              [data-blocked-item-id="${itemId}"] {
-                display: none !important;
-              }
-            `;
-            document.head.appendChild(styleTag);
-            article.setAttribute('data-blocked-item-id', itemId);
-          }
-        });
+      }
+      const link = article.querySelector('a.sf-search-ad-link');
+      if (!link) return;
+      const match = link.href.match(/\/item\/(\d+)/);
+      if (!match) return;
+      const itemId = match[1];
+      if (blockedItems.has(itemId)) {
+        article.style.display = 'none';
+        return;
+      }
+      if (checkedItems.has(itemId)) return;
+      checkedItems.add(itemId);
+      checkItemSeller(link.href).then(blockedId => {
+        if (blockedId) {
+          article.style.display = 'none';
+          blockedItems.add(itemId);
+          const styleTag = document.createElement('style');
+          styleTag.textContent = `[data-blocked-item-id="${itemId}"] { display: none !important; }`;
+          document.head.appendChild(styleTag);
+          article.setAttribute('data-blocked-item-id', itemId);
+        }
       });
-    }
+    });
   } else if (window.location.href.includes('/item/')) {
-    // If we're on an item page, check if it's from any blocked user
     const sellerLinks = document.querySelectorAll('a[href*="?userId="]');
-    
     sellerLinks.forEach(link => {
-      for (const userId of BLOCKED_USER_IDS) {
-        if (link.href.includes(`userId=${userId}`)) {
-          console.log(`Finn.no Shadowban: This item is from blocked user ${userId}, redirecting back`);
+      for (const id of BLOCKED_USER_IDS) {
+        if (link.href.includes(`userId=${id}`)) {
           window.history.back();
           return;
         }
@@ -118,121 +78,111 @@ function shadowbanUser() {
   }
 }
 
-// Function to extract userId from an item URL
-async function extractUserIdFromItemPage(itemUrl) {
-  try {
-    // Fetch the item page
-    const response = await fetch(itemUrl, {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'text/html',
-        'Cache-Control': 'no-cache'
-      }
-    });
-    
-    if (!response.ok) {
-      console.error(`Finn.no Shadowban: Failed to fetch ${itemUrl}, status: ${response.status}`);
-      return null;
-    }
-    
-    const html = await response.text();
-    
-    // Use regex to extract the userId from the HTML
-    // Looking for patterns like: href="/profile/ads?userId=<number_here>"
-    const userIdMatch = html.match(/href="\/profile\/ads\?userId=(\d+)"/);
-    
-    if (userIdMatch && userIdMatch[1]) {
-      return userIdMatch[1];
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Finn.no Shadowban: Error extracting user ID:', error, itemUrl);
-    return null;
-  }
-}
-
-// Function to check if an item is from any of the blocked users
-// Returns the blocked user ID if found, otherwise null
 async function checkItemSeller(itemUrl) {
   try {
-    // Fetch the item page
-    const response = await fetch(itemUrl, {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'text/html',
-        'Cache-Control': 'no-cache'
-      }
-    });
-    
-    if (!response.ok) {
-      console.error(`Finn.no Shadowban: Failed to fetch ${itemUrl}, status: ${response.status}`);
-      return null;
-    }
-    
+    const response = await fetch(itemUrl, { credentials: 'same-origin' });
+    if (!response.ok) return null;
     const html = await response.text();
-    
-    // Check for each blocked user ID in the HTML
-    for (const userId of BLOCKED_USER_IDS) {
-      if (html.includes(`userId=${userId}`)) {
-        return userId;
+
+    for (const id of BLOCKED_USER_IDS) {
+      if (html.includes(`userId=${id}`)) {
+        console.log(`Finn.no Shadowban: Found blocked userId=${id} in item page`);
+        return id;
       }
     }
-    
+
+    const ownerId = await extractOwnerIdFromHtml(html);
+    if (ownerId && BLOCKED_USER_IDS.includes(ownerId)) {
+      console.log(`Finn.no Shadowban: Found blocked ownerId=${ownerId} in item page`);
+      return ownerId;
+    }
+
     return null;
-  } catch (error) {
-    console.error('Finn.no Shadowban: Error checking item seller:', error, itemUrl);
+  } catch (e) {
+    console.error('Finn.no Shadowban: Error checking item seller:', e);
     return null;
   }
 }
 
-// Function to add a userId to the blocked list
+// Helper function to extract owner ID from HTML
+async function extractOwnerIdFromHtml(html) {
+  try {
+    let hydrationDataMatch = html.match(/<script>window\.__staticRouterHydrationData\s*=\s*JSON\.parse\("(.*?)"\)<\/script>/s);
+    if (!hydrationDataMatch) {
+      hydrationDataMatch = html.match(/window\.__staticRouterHydrationData\s*=\s*JSON\.parse\("([^<]+)"\)/s);
+    }
+
+    if (hydrationDataMatch && hydrationDataMatch[1]) {
+      const hydrationContent = hydrationDataMatch[1];
+      const ownerIdMatch = hydrationContent.match(/\\*"ownerId\\*":(\d+)/);
+      if (ownerIdMatch && ownerIdMatch[1]) {
+        return ownerIdMatch[1];
+      }
+      const adOwnerPattern = hydrationContent.match(/\\*"adId\\*":\\*"(\d+)\\*",\\*"ownerId\\*":(\d+)/);
+      if (adOwnerPattern && adOwnerPattern[2]) {
+        return adOwnerPattern[2];
+      }
+      const generalOwnerIdMatch = hydrationContent.match(/ownerId.{0,10}?(\d{7,})/);
+      if (generalOwnerIdMatch && generalOwnerIdMatch[1]) {
+        return generalOwnerIdMatch[1];
+      }
+    }
+
+    return null;
+  } catch (e) {
+    console.error('Finn.no Shadowban: Error extracting owner ID from HTML:', e);
+    return null;
+  }
+}
+
 function addUserToBlockedList(userId) {
-  if (!userId || BLOCKED_USER_IDS.includes(userId)) {
+  console.log(`Finn.no Shadowban: Attempting to add user ${userId} to blocked list`);
+  if (!userId) {
+    console.error('Finn.no Shadowban: Cannot add null/undefined userId to blocked list');
     return;
   }
-  
-  // Add to the in-memory array
+
+  if (BLOCKED_USER_IDS.includes(userId)) {
+    console.log(`Finn.no Shadowban: User ${userId} is already in blocked list`);
+    return;
+  }
+
   BLOCKED_USER_IDS.push(userId);
-  
-  // Save to storage
-  chrome.storage.local.set({blockedUserIds: BLOCKED_USER_IDS}, function() {
-    console.log(`Finn.no Shadowban: Added user ${userId} to blocked list`);
-    // Re-run shadowban with the updated list
+  console.log(`Finn.no Shadowban: Added user ${userId} to BLOCKED_USER_IDS`);
+
+  chrome.storage.local.set({ blockedUserIds: BLOCKED_USER_IDS }, function() {
+    console.log(`Finn.no Shadowban: Successfully saved user ${userId} to storage`);
     shadowbanUser();
   });
 }
 
-// Listen for messages from the background script
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action === 'shadowbanSeller') {
-    // Extract the URL from the selected item
-    const itemUrl = request.itemUrl;
-    
-    if (itemUrl) {
-      // Extract the userId and add it to the blocked list
-      extractUserIdFromItemPage(itemUrl).then(userId => {
-        if (userId) {
-          addUserToBlockedList(userId);
-          sendResponse({success: true, userId: userId});
-        } else {
-          sendResponse({success: false, error: 'Could not extract user ID'});
-        }
-      });
-      
-      // Return true to indicate we'll respond asynchronously
-      return true;
-    }
-  } else if (request.action === 'refreshBlockedList') {
-    // Reload the blocked list from storage
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Finn.no Shadowban: Message received in content script:', request);
+
+  if (request.action === 'shadowbanSeller' && request.itemUrl) {
+    console.log('Finn.no Shadowban: Processing shadowbanSeller action for URL:', request.itemUrl);
+
+    extractUserIdFromItemPage(request.itemUrl).then(id => {
+      if (id) {
+        addUserToBlockedList(id);
+        sendResponse({ success: true, userId: id });
+      } else {
+        sendResponse({ success: false, error: 'Could not extract user ID' });
+      }
+    }).catch(error => {
+      sendResponse({ success: false, error: error.toString() });
+    });
+
+    return true;
+  }
+
+  if (request.action === 'refreshBlockedList') {
     loadBlockedUserIds();
-    sendResponse({success: true});
+    sendResponse({ success: true });
+    return true;
   }
 });
 
-// Also run when the DOM content might have been updated (for infinite scrolling)
 let lastUrl = location.href;
 new MutationObserver(() => {
   const url = location.href;
@@ -240,7 +190,35 @@ new MutationObserver(() => {
     lastUrl = url;
     shadowbanUser();
   } else if (document.querySelector('article.sf-search-ad')) {
-    // Check if new articles were added (infinite scroll)
     shadowbanUser();
   }
-}).observe(document, {subtree: true, childList: true});
+}).observe(document, { childList: true, subtree: true });
+
+async function extractUserIdFromItemPage(itemUrl) {
+  try {
+    const resp = await fetch(itemUrl, { credentials: 'same-origin' });
+    if (!resp.ok) return null;
+    const txt = await resp.text();
+
+    const profileMatch = txt.match(/href="\/profile\/ads\?userId=(\d+)"/);
+    if (profileMatch) return profileMatch[1];
+
+    const userIdMatch = txt.match(/href="[^"]*\?userId=(\d+)"/);
+    if (userIdMatch) return userIdMatch[1];
+
+    const dataMatch = txt.match(/data-user-id="(\d+)"/);
+    if (dataMatch) return dataMatch[1];
+
+    const generalMatch = txt.match(/userId=(\d+)/);
+    if (generalMatch) return generalMatch[1];
+
+    const sellerSectionMatch = txt.match(/<h2[^>]*>Sold by<\/h2>[\s\S]*?href="[^"]*?userId=(\d+)"/i) ||
+                               txt.match(/<div[^>]*seller[^>]*>[\s\S]*?userId=(\d+)/i);
+    if (sellerSectionMatch) return sellerSectionMatch[1];
+
+    return null;
+  } catch (e) {
+    console.error('Finn.no Shadowban: Error extracting user ID:', e);
+    return null;
+  }
+}

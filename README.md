@@ -1,5 +1,7 @@
 Read English readme here: [English README](README-EN.md)
 
+Firefox -versjon: https://github.com/turbolego/finn.no-shadowban-firefox
+
 # Finn.no Shadowban Chrome-utvidelse
 
 Denne Chrome-utvidelsen lar deg skjule annonser fra bestemte selgere på finn.no ved å legge dem til i din personlige blokkeringsliste.
